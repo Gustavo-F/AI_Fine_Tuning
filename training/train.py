@@ -26,7 +26,7 @@ COL_INSTRUCTION = "Instruction"
 COL_INPUT = "Input"
 COL_OUTPUT = "Output"
 
-MAX_SEQ_LENGTH = 1024
+MAX_SEQ_LENGTH = 512
 MICRO_BATCH_SIZE = 1
 GRAD_ACCUM_STEPS = 8
 EPOCHS = 3
@@ -61,6 +61,7 @@ model = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.float16,
     trust_remote_code=True,
     offload_folder=OFFLOAD_DIR,
+    offload_state_dict=True,
 )
 
 # -------- LORA CONFIG --------
@@ -69,14 +70,15 @@ lora_config = LoraConfig(
     lora_alpha=32,
     lora_dropout=0.05,
     target_modules=[
-        "q_proj", "k_proj", "v_proj", "o_proj",
-        "up_proj", "down_proj", "gate_proj"
+        "q_proj", "k_proj", "v_proj", "o_proj"
     ],
     bias="none",
     task_type=TaskType.CAUSAL_LM
 )
 
 model = get_peft_model(model, lora_config)
+
+model.gradient_checkpointing = True
 
 # -------- PROMPT CHATML PARA QWEN --------
 def build_prompt(instruction, inp):

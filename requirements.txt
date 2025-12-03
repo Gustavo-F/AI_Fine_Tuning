@@ -5,3 +5,4 @@ peft>=0.11.1
 bitsandbytes>=0.43.1
 sentencepiece
 protobuf
+torch

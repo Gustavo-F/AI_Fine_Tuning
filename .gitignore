@@ -217,3 +217,9 @@ __marimo__/
 
 # PyCharm
 .idea
+
+# Training Folders
+merged_model/
+offload/
+out_mistral-7b_lora/
+llama.cpp/

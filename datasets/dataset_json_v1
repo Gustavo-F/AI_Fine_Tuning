@@ -1,27 +1,27 @@
 [
   {
-    "Instruction": "Converta esse script do IBM RPA para Python",
-    "Input": "defVar --name city --type String --value \"Rio das Gaivotas\"",
-    "Output": "city = \"Rio das Gaivotas\""
+    "instruction": "Converta esse script do IBM RPA para Python",
+    "input": "defVar --name city --type String --value \"Rio das Gaivotas\"",
+    "output": "city = \"Rio das Gaivotas\""
   },
   {
-    "Instruction": "Converta o scritp informado para Python",
-    "Input": "defVar --name street --type String --value \"Av. das Gaivotas\"",
-    "Output": "street = \"Av. das Gaivotas\""
+    "instruction": "Converta o scritp informado para Python",
+    "input": "defVar --name street --type String --value \"Av. das Gaivotas\"",
+    "output": "street = \"Av. das Gaivotas\""
   },
   {
-    "Instruction": "Faça a o converção desse script para Python",
-    "Input": "defVar --name district --type String --value \"Beira Rio\"",
-    "Output": "district = \"Beira Rio\""
+    "instruction": "Faça a o converção desse script para Python",
+    "input": "defVar --name district --type String --value \"Beira Rio\"",
+    "output": "district = \"Beira Rio\""
   },
   {
-    "Instruction": "Converta o script do IBM RPA para Python",
-    "Input": "defVar --name number --type Numeric = 654",
-    "Output": "number = 654"
+    "instruction": "Converta o script do IBM RPA para Python",
+    "input": "defVar --name number --type Numeric = 654",
+    "output": "number = 654"
   },
   {
-    "Instruction": "Converta esse script do IBM RPA para Python",
-    "Input": "logMessage --message \"\r\nYour address is: ${street} ${number} - ${district} - ${city}\"",
-    "Output": "print(f\"Your address is: {street} {number} - {district} - {city}\")"
+    "instruction": "Converta esse script do IBM RPA para Python",
+    "input": "logMessage --message \"\r\nYour address is: ${street} ${number} - ${district} - ${city}\"",
+    "output": "print(f\"Your address is: {street} {number} - {district} - {city}\")"
   }
 ]

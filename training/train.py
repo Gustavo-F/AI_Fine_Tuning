@@ -1,9 +1,3 @@
-"""
-QLoRA Fine-Tuning for Qwen/Qwen3-4B-Instruct-2507
-Adaptado para rodar em 8GB VRAM (RTX 4060).
-CSV com colunas: Instructions, Input, Output
-"""
-
 import os
 import torch
 from datasets import load_dataset
@@ -22,9 +16,9 @@ OUTPUT_DIR = "./out_mistral-7b_lora"
 OFFLOAD_DIR = "./offload"
 CSV_PATH = "./datasets/dataset_v1.csv"
 
-COL_INSTRUCTION = "Instruction"
-COL_INPUT = "Input"
-COL_OUTPUT = "Output"
+COL_INSTRUCTION = "instruction"
+COL_INPUT = "input"
+COL_OUTPUT = "output"
 
 MAX_SEQ_LENGTH = 512
 MICRO_BATCH_SIZE = 1
@@ -80,17 +74,17 @@ model = get_peft_model(model, lora_config)
 
 model.gradient_checkpointing = True
 
-# -------- PROMPT CHATML PARA QWEN --------
+# -------- PROMPT CHATML --------
 def build_prompt(instruction, inp):
     if inp and str(inp).strip():
         return (
-            f"<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+            f"<|im_start|>system\nYou are a helpful assistant who will assist the user in converting IBM RPA Scripts (WAL) into Python code.<|im_end|>\n"
             f"<|im_start|>user\n{instruction}\nInput: {inp}<|im_end|>\n"
             f"<|im_start|>assistant\n"
         )
     else:
         return (
-            f"<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+            f"<|im_start|>system\nYou are a helpful assistant who will assist the user in converting IBM RPA Scripts (WAL) into Python code.<|im_end|>\n"
             f"<|im_start|>user\n{instruction}<|im_end|>\n"
             f"<|im_start|>assistant\n"
         )

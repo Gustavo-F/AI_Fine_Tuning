@@ -1,0 +1,52 @@
+[
+  {
+    "instruction": "Traduza o seguinte comando de declaração de variável string do IBM RPA para um código Python equivalente. Explique a lógica da conversão.",
+    "input": "defVar --name city --type String --value \"Rio das Gaivotas\"",
+    "output": "A declaração `defVar` do RPA é traduzida em Python como uma atribuição direta de valor. É uma boa prática usar `snake_case` em Python, então convertemos 'city' (que já está em snake_case/lower). O valor é mantido como string.\n\n```python\ncity = \"Rio das Gaivotas\"\n```"
+  },
+  {
+    "instruction": "Traduza o seguinte comando de declaração de variável string do IBM RPA para um código Python equivalente. Explique a lógica da conversão.",
+    "input": "defVar --name street --type String --value \"Av. das Gaivotas\"",
+    "output": "A declaração de variável do RPA é convertida para uma atribuição direta em Python. O tipo `String` é inferido pela presença das aspas. O nome 'street' é mantido.\n\n```python\nstreet = \"Av. das Gaivotas\"\n```"
+  },
+  {
+    "instruction": "Traduza o seguinte comando de declaração de variável string do IBM RPA para um código Python equivalente. Explique a lógica da conversão.",
+    "input": "defVar --name district --type String --value \"Beira Rio\"",
+    "output": "O comando `defVar` do RPA é traduzido em Python como uma atribuição simples. Mantemos o nome da variável 'district' e o valor da string.\n\n```python\ndistrict = \"Beira Rio\"\n```"
+  },
+  {
+    "instruction": "Traduza o seguinte comando de declaração de variável numérica do IBM RPA para um código Python equivalente. Explique a lógica da conversão.",
+    "input": "defVar --name number --type Numeric --value 654",
+    "output": "Variáveis numéricas em RPA também são convertidas para atribuições diretas em Python. O tipo `Numeric` é inferido, e as aspas são removidas no valor em Python.\n\n```python\nnumber = 654\n```"
+  },
+  {
+    "instruction": "Traduza o comando de impressão (log) do IBM RPA para o Python, explicando como lidar com a interpolação de variáveis.",
+    "input": "logMessage --message \"Your address is: ${street} ${number} - ${district} - ${city}\"",
+    "output": "O comando `logMessage` do RPA é traduzido para a função `print()` em Python. A interpolação de variáveis no RPA (`${variable}`) é substituída pelo formato moderno de **f-strings** em Python (`f\"... {variable} ...\"`).\n\n```python\nprint(f\"Your address is: {street} {number} - {district} - {city}\")\n```"
+  },
+  {
+    "instruction": "Traduza o loop `for` do IBM RPA para um loop `for` Python equivalente. Garanta que o range e a mensagem de log estejam corretos.",
+    "input": "for --variable iterator --from 1 --to 5 --step 1\n    logMessage --message \"Repetition number: ${iterator}\"\nnext",
+    "output": "O `for` do RPA com `from 1 --to 5` é convertido para a função `range(start, stop)` do Python. Como `stop` é exclusivo em Python, usamos `6` para incluir o número 5. O `logMessage` é traduzido para `print()` e a interpolação para f-string.\n\n```python\nfor iterator in range(1, 6):\n    print(f\"Repetition number: {iterator}\")\n```"
+  },
+  {
+    "instruction": "Traduza a declaração de lista com comandos de inserção (`insert`) e log do IBM RPA para Python. Mantenha o index correto.",
+    "input": "defVar --name lettersCollection --type List --innertype String --value \"[A,B,C,D,E,F,H,I,J,K,L,M]\"\ninsert --index 7 --value G --collection lettersCollection\nlogMessage --message \"${lettersCollection}\"",
+    "output": "A `List` do RPA é convertida para uma lista Python. O `defVar` inicializa a lista. O comando `insert --index 7 --value G` é traduzido diretamente para o método `.insert(index, value)` da lista Python. O nome da variável foi convertido para `snake_case`.\n\n```python\nletters_collection = [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"H\", \"I\", \"J\", \"K\", \"L\", \"M\"]\nletters_collection.insert(7, \"G\")\nprint(letters_collection)\n```"
+  },
+  {
+    "instruction": "Traduza o complexo script IBM RPA que manipula uma lista numérica com múltiplos `insert` e faz a soma usando `foreach` e `evaluate` para Python.",
+    "input": "defVar --name numericList --type List --innerType Numeric\ninsert --value 25 --collection numericList\ninsert --value 10 --collection numericList\ninsert --value 98 --collection numericList\ninsert --index 0 --value 0 --collection numericList\ninsert --value 45 --collection numericList\ninsert --value 1 --collection numericList\ninsert --index 3 --value -5 --collection numericList\ninsert --index 4 --value 108 --collection numericList\ndefVar --name sum --type Numeric\nforeach --collection numericList --variable number\n    evaluate --expression \"${sum} + ${number}\" --to sum\nnext",
+    "output": "O script foi traduzido para Python, mantendo a lógica de manipulação da lista e de soma. O `insert` sem índice vira `.append()`. O `insert` com índice é mantido. O `foreach` vira um loop `for` Python, e o `evaluate` de soma é simplificado para o operador de atribuição de adição (`+=`). O nome da variável de soma foi renomeada para `sum_value` para evitar conflito com a função nativa `sum()` do Python.\n\n```python\nnumeric_list = []\nnumeric_list.append(25)\nnumeric_list.append(10)\nnumeric_list.append(98)\nnumeric_list.insert(0, 0)\nnumeric_list.append(45)\nnumeric_list.append(1)\nnumeric_list.insert(3, -5)\nnumeric_list.insert(4, 108)\n\nsum_value = 0\nfor number in numeric_list:\n    sum_value += number\n```"
+  },
+  {
+    "instruction": "Traduza o condicional simples `if/endIf` do IBM RPA para a sintaxe `if` Python. Use a variável 'studentAverage'.",
+    "input": "defVar --name studentAverage --type Numeric --value 8\nif --left studentAverage --operator Greater_Than --right 7\n    logMessage --message \"Congratulations! You can participate in the draw!\"\nendIf",
+    "output": "O `if` do RPA com `Greater_Than` é traduzido para a estrutura `if` Python usando o operador `>`. O `endIf` é substituído pela identação Python. A variável foi convertida para `snake_case` (`student_average`).\n\n```python\nstudent_average = 8\nif student_average > 7:\n    print(\"Congratulations! You can participate in the draw!\")\n```"
+  },
+  {
+    "instruction": "Traduza o condicional complexo com múltiplas branches (`if/elseIf/else`) do IBM RPA para a estrutura Python equivalente. Mantenha a ordem lógica.",
+    "input": "defVar --name studentAverage --type Numeric --value 7.5\nif --left studentAverage --operator Equal_To --right 10\n    logMessage --message \"Perfect score!\"\nelseIf --left studentAverage --operator Greater_Than --right 7\n    logMessage --message \"Approved for advanced course!\"\nelse\n    logMessage --message \"Not approved, grade below cutoff.\"",
+    "output": "A estrutura de decisão aninhada (`if/elseIf/else`) do RPA é traduzida para `if/elif/else` em Python. O operador `Equal_To` é convertido para `==` e `Greater_Than` para `>`. O `logMessage` em todas as branches é convertido para `print()`.\n\n```python\nstudent_average = 7.5\nif student_average == 10:\n    print(\"Perfect score!\")\nelif student_average > 7:\n    print(\"Approved for advanced course!\")\nelse:\n    print(\"Not approved, grade below cutoff.\")\n```"
+  }
+]

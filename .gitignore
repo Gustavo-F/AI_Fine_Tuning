@@ -223,3 +223,6 @@ merged_model/
 offload/
 out_mistral-7b_lora/
 llama.cpp/
+
+# Quantized Models
+*.gguf

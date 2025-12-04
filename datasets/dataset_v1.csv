@@ -1,4 +1,4 @@
-Instruction,Input,Output
+instruction,input,output
 Converta esse script do IBM RPA para Python,defVar --name city --type String --value "Rio das Gaivotas",city = "Rio das Gaivotas"
 Converta o scritp informado para Python,defVar --name street --type String --value “Av. das Gaivotas”,street = "Av. das Gaivotas"
 Faça a o converção desse script para Python,defVar --name district --type String --value "Beira Rio",district = "Beira Rio"

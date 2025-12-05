@@ -1,6 +1,8 @@
 import os
 import torch
+from dotenv import load_dotenv
 from datasets import load_dataset
+from peft import LoraConfig, get_peft_model, TaskType
 from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
@@ -8,24 +10,30 @@ from transformers import (
     Trainer,
     TrainingArguments
 )
-from peft import LoraConfig, get_peft_model, TaskType
+
+load_dotenv()
 
 # ----------------- CONFIGURAÇÕES GERAIS -----------------
-MODEL_NAME = "mistralai/Mistral-7B-Instruct-v0.3"
-OUTPUT_DIR = "./out_mistral-7b_lora"
+MODEL_NAME = os.getenv("MODEL")
+OUTPUT_DIR = os.getenv("OUTPUT_DIR")
+CSV_PATH = os.getenv("DATASET_PATH")
+HUGGINGFACE_TOKEN = os.getenv("HF_TOKEN")
 OFFLOAD_DIR = "./offload"
-CSV_PATH = "./datasets/dataset_v1.csv"
 
 COL_INSTRUCTION = "instruction"
 COL_INPUT = "input"
 COL_OUTPUT = "output"
 
-MAX_SEQ_LENGTH = 512
+MAX_SEQ_LENGTH = 1024
 MICRO_BATCH_SIZE = 1
 GRAD_ACCUM_STEPS = 8
 EPOCHS = 3
 LR = 2e-4
 # ---------------------------------------------------------
+
+print("\n===== Cleaning CUDA Cache =====")
+torch.cuda.empty_cache()
+print("===== CUDA Cache Cleaned =====\n")
 
 os.makedirs(OFFLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -33,7 +41,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # -------- TOKENIZER --------
 tokenizer = AutoTokenizer.from_pretrained(
     MODEL_NAME,
-    trust_remote_code=True
+    trust_remote_code=True,
+    use_auth_token=True,
 )
 
 if tokenizer.pad_token_id is None:
@@ -43,7 +52,7 @@ if tokenizer.pad_token_id is None:
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_use_double_quant=True,
-    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_compute_dtype=torch.bfloat16,
     bnb_4bit_quant_type="nf4",
 )
 
@@ -52,7 +61,7 @@ model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME,
     quantization_config=bnb_config,
     device_map="auto",
-    torch_dtype=torch.float16,
+    torch_dtype=torch.bfloat16,
     trust_remote_code=True,
     offload_folder=OFFLOAD_DIR,
     offload_state_dict=True,
@@ -72,7 +81,10 @@ lora_config = LoraConfig(
 
 model = get_peft_model(model, lora_config)
 
-model.gradient_checkpointing = True
+model.enable_input_require_grads()
+model.gradient_checkpointing_enable()
+model.config.use_cache = False
+model.train()
 
 # -------- PROMPT CHATML --------
 def build_prompt(instruction, inp):
@@ -101,9 +113,10 @@ def process_example(ex):
     full_text = prompt + out
 
     data = tokenizer(full_text, truncation=True, max_length=MAX_SEQ_LENGTH)
-    prompt_len = len(tokenizer(prompt)["input_ids"])
+    prompt_len = len(tokenizer(prompt, truncation=True, max_length=MAX_SEQ_LENGTH)["input_ids"])
 
     labels = [-100] * prompt_len + data["input_ids"][prompt_len:]
+    labels = labels[:len(data["input_ids"])]
 
     data["labels"] = labels
     return data
@@ -112,16 +125,22 @@ tokenized = ds.map(process_example)
 
 # -------- COLLATOR --------
 def collator(batch):
-    ids = [torch.tensor(b["input_ids"]) for b in batch]
-    labels = [torch.tensor(b["labels"]) for b in batch]
+    ids = [torch.tensor(b["input_ids"], dtype=torch.long) for b in batch]
+    labels = [torch.tensor(b["labels"], dtype=torch.long) for b in batch]
 
-    ids = torch.nn.utils.rnn.pad_sequence(ids, batch_first=True, padding_value=tokenizer.pad_token_id)
-    labels = torch.nn.utils.rnn.pad_sequence(labels, batch_first=True, padding_value=-100)
+    ids = torch.nn.utils.rnn.pad_sequence(
+        ids, batch_first=True, padding_value=tokenizer.pad_token_id
+    )
+    labels = torch.nn.utils.rnn.pad_sequence(
+        labels, batch_first=True, padding_value=-100
+    )
+
+    attention_mask = (ids != tokenizer.pad_token_id).long()
 
     return {
-        "input_ids": ids,
-        "labels": labels,
-        "attention_mask": (ids != tokenizer.pad_token_id).long()
+        "input_ids": ids,            # <-- CPU (correto)
+        "labels": labels,            # <-- CPU (correto)
+        "attention_mask": attention_mask  # <-- CPU (correto)
     }
 
 # -------- TREINAMENTO --------
@@ -131,11 +150,13 @@ args = TrainingArguments(
     gradient_accumulation_steps=GRAD_ACCUM_STEPS,
     num_train_epochs=EPOCHS,
     learning_rate=LR,
-    fp16=True,
+    fp16=False,
+    bf16=True,
     logging_steps=10,
     save_strategy="epoch",
     optim="paged_adamw_32bit",
     remove_unused_columns=False,
+    gradient_checkpointing=True,
 )
 
 trainer = Trainer(
@@ -144,6 +165,10 @@ trainer = Trainer(
     train_dataset=tokenized,
     data_collator=collator,
 )
+
+print("\n===== Trainable parameters =====")
+model.print_trainable_parameters()
+print("================================\n")
 
 trainer.train()
 model.save_pretrained(OUTPUT_DIR)

@@ -221,7 +221,7 @@ __marimo__/
 # Training Folders
 merged_model/
 offload/
-out_mistral-7b_lora/
+output_lora/
 llama.cpp/
 
 # Quantized Models

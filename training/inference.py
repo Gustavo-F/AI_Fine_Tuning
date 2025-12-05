@@ -1,11 +1,16 @@
+import os
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import PeftModel
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # -------- CONFIGURAÇÕES --------
-BASE_MODEL = "mistralai/Mistral-7B-Instruct-v0.3"   # Modelo base atualizado
-LORA_DIR = "./out_mistral-7b_lora"               # Pasta do seu LoRA treinado
+BASE_MODEL = os.getenv("MODEL")
+LORA_DIR = os.getenv("OUTPUT_DIR")
 MAX_NEW_TOKENS = 300
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # --------------------------------
 

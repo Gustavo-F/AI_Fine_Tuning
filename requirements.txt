@@ -3,6 +3,7 @@ accelerate>=0.30.0
 datasets>=2.19.0
 peft>=0.11.1
 bitsandbytes>=0.43.1
-sentencepiece
-protobuf
-torch
+sentencepiece==0.2.1
+protobuf==6.33.1
+torch==2.9.1
+dotenv==0.9.9

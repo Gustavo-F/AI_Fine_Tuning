@@ -223,6 +223,10 @@ merged_model/
 offload/
 output_lora/
 llama.cpp/
+outputs/
+unsloth_compiled_cache/
+finetuned_model/
 
 # Quantized Models
 *.gguf
+Modelfile

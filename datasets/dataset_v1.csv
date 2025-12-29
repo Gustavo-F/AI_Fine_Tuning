@@ -1,14 +1,14 @@
 instruction,input,output
 Converta esse script do IBM RPA para Python,defVar --name city --type String --value "Rio das Gaivotas",city = "Rio das Gaivotas"
 Converta o scritp informado para Python,defVar --name street --type String --value “Av. das Gaivotas”,street = "Av. das Gaivotas"
-Faça a o converção desse script para Python,defVar --name district --type String --value "Beira Rio",district = "Beira Rio"
-Converta o script do IBM RPA para Python, defVar --name number --type Numeric = 654,number = 654
+Faça a converção desse script para Python,defVar --name district --type String --value "Beira Rio",district = "Beira Rio"
+Converta o script do IBM RPA para Python,defVar --name number --type Numeric = 654,number = 654
 Converta esse script do IBM RPA para Python,logMessage --message "\r\nYour address is: ${street} ${number} - ${district} - ${city}",print(f"Your address is: {street} {number} - {district} - {city}")
 Converta esse script do IBM RPA para Python,"for --variable ${iterator} --from 1 --to 5 --step 1
  logMessage --message ""Repetition number: ${iterator}"" --type ""Info""
 next","for iterator in range(0, 5):
     print(f""Repetition number: {iterator}"")"
-Faça a o converção desse script do IBM RPA para Python,"defVar --name lettersCollection --type List --innertype String --value ""[A,B,C,D,E,F,H,I,J,K,L,M]""
+Faça a converção desse script do IBM RPA para Python,"defVar --name lettersCollection --type List --innertype String --value ""[A,B,C,D,E,F,H,I,J,K,L,M]""
 insert --index 7 --value G --collection ""${lettersCollection}""
 logMessage --message ""${lettersCollection}"" --type ""Info""","letters_collection = [""A"", ""B"", ""C"", ""D"", ""E"", ""F"", ""H"", ""I"", ""J"", ""K"", ""L"", ""M""]
 letters_collection.insert(7, ""G"")
@@ -61,3 +61,103 @@ elif student_average >= 7:
     print(""Congratulations! You have been approved for the Advanced Mathematics course!"")
 else:
     print(""Unfortunately, you were not approved for the Advanced Mathematics course, your grade is below the cut-off mark."")"
+Converta para Python o script do IBM RPA a seguir,"delay --timeout ""00:00:05""","import time
+
+time.sleep(5)"
+Converta o script do IBM RPA para Python,"defVar --name verifyValue --type Numeric
+
+while --left ""${verifyValue}"" --operator ""Less_Than"" --right 5
+    incrementVar --number ${verifyValue}
+    logMessage --message ""${verifyValue}"" --type ""Info""
+endWhile","verify_value = int()
+
+while verify_value < 5:
+    verify_value += 1
+    print(verify_value)"
+Faça a converção do script do IBM RPA a seguir para Python,"defVar --name verifiedValue --type Numeric --value 8
+
+while --left ""${verifiedValue}"" --operator ""Less_Than"" --right 5 --negate
+    logMessage --message ""${verifiedValue}"" --type ""Info""
+    decrementVar --number ${verifiedValue}
+endWhile","verified_value = 8
+while not (verified_value < 5):
+    print(verified_value)
+    verified_value -= 1"
+"Faça a converção, para Python, do Script do IBM RPA a seguir","defVar --name baseValue --type Numeric --value 35
+defVar --name i --type Numeric
+defVar --name x --type Numeric
+defVar --name limit --type Numeric
+
+generateRandomNumber --minimum 1 --maximum 8890 limit=value
+logMessage --message ""Limit: ${limit}"" --type ""Info""
+
+for --variable ${i} --from 0 --to 254 --step 1
+	evaluate --expression ""${baseValue} * ${i}"" x=value
+	logMessage --message ""${i} x ${baseValue} = ${x}"" --type ""Info""
+	if --left ""${x}"" --operator ""Greater_Than_Equal_To"" --right ""${limit}""
+		break
+	endIf
+next","import random
+
+base_value = 35
+limit = random.randint(0, 8890)
+
+print(f""Limit: {limit}\n"")
+
+for i in range(0, 255):
+    x = base_value * i
+    print(f""{i} x {base_value} = {x}"")
+    if x >= limit:
+        break"
+Converta para Python o script do IBM RPA,"defVar --name sumResult --type Numeric
+
+evaluate --expression ""5.0 + 5.0 / 2.0"" sumResult=value
+logMessage --message ""Sum Result -> ${sumResult}"" --type Info","sum_result = 0
+
+sum_result = 5 + 5 / 2
+print(f""Sum Result -> {sum_result}\n"")"
+Faça a converção do script a seguir para Python,"defVar --name baseURL --type String --value ""https://esaj.tjsp.jus.br/cpopg/open.do""
+
+webStart --name TJFirefox --type ""Firefox"" --userprofilepreferences ""AutomationOptimized""
+webNavigate --url ""${baseURL}""
+webWaitElement --selector ""Id"" --id radioNumeroAntigo --timeout ""00:00:01""
+webClick --selector ""Id"" --id radioNumeroAntigo
+webWaitElement --selector ""Id"" --id nuProcessoAntigoFormatado --timeout ""00:00:01""
+webClick --selector ""Id"" --id nuProcessoAntigoFormatado
+webWaitElement --selector ""Id"" --id nuProcessoAntigoFormatado --timeout ""00:00:01""
+webSet --value 10255174020148260053 --selector ""Id"" --id nuProcessoAntigoFormatado
+webWaitElement --selector ""Id"" --id botaoConsultarProcessos --timeout ""00:00:01""
+webClick --selector ""Id"" --id botaoConsultarProcessos
+delay --timeout ""00:00:5""
+webClose --name TJFirefox","from botcity.web import WebBot, Browser, By
+from botcity.maestro import BotMaestroSDK
+
+base_url = ""https://esaj.tjsp.jus.br/cpopg/open.do""
+BotMaestroSDK.RAISE_NOT_CONNECTED = False
+
+bot = WebBot()
+bot.headless = False
+
+bot.browser = Browser.FIREFOX
+bot.browse(base_url)
+
+bot.wait(500)
+radio_numero_antigo = bot.find_element(by=By.ID, selector=""radioNumeroAntigo"")
+radio_numero_antigo.click()
+
+bot.wait(500)
+nu_processo_antigo_formatado = bot.find_element(by=By.ID, selector=""nuProcessoAntigoFormatado"")
+nu_processo_antigo_formatado.send_keys(""10255174020148260053"")
+
+bot.wait(500)
+botao_consultar_processos = bot.find_element(by=By.ID, selector=""botaoConsultarProcessos"")
+botao_consultar_processos.click()
+
+bot.wait(5000)
+bot.stop_browser()
+"
+Converta o script de IBM RPA a seguir para Python.,"defVar --name excelFileParams --type Excel
+excelOpen --file ""/path/to/excel-file.xlsl"" excelFileParams=value","from botcity.plugins.excel import BotExcelPlugin
+
+bot_excel = BotExcelPlugin()
+bot_excel.read(""/path/to/excel-file.xlsx"")"

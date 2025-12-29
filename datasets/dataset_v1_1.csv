@@ -97,3 +97,9 @@ elif student_average > 7:
 else:
     print(""Not approved, grade below cutoff."")
 ```"
+Converta o comando `dalay` do IBM RPA para Python. ,"delay --timeout ""00:00:05""","O comando `delay` do RPA pode ser convertido utilizando o método `slepp()` da biblioteca `time`. Desta forma, a conversão ficaria da seguinte maneira:
+```python
+import time
+
+time.sleep(5) // segundos a serem esperados
+```"
